@@ -22,6 +22,8 @@ Or install it yourself as:
 ## Basic Usage
 
 ```ruby
+include WithRateLimit
+
 interval = 1 # interval in seconds
 rate_limit = 5 # number of operations within given interval
 options = {
@@ -40,6 +42,8 @@ end
 If you need to set up multiple rate limits, i.e. 5000 requests/day **and** 5 requests/sec, you can nest `with_rate_limit` calls.
 
 ```ruby
+include WithRateLimit
+
 with_rate_limit 1.day.to_i, 5000 do
     with_rate_limit 1, 5 do
         # do something here
@@ -56,6 +60,8 @@ large intervals with limit that are likely to exceeded early as it may block app
 Raises an `WithRateLimit::LimitExceededError` with the number of second to wait until next interval.
 
 ```ruby
+include WithRateLimit
+
 with_rate_limit 1, 5 do
     # do something
 rescue WithRateLimit::LimitExceededError => e  
