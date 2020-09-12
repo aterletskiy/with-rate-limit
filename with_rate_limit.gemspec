@@ -8,14 +8,14 @@ Gem::Specification.new do |spec|
 
   spec.summary       = %q{Rate limits operations that are passed in to block}
   spec.description   = %q{Allows operations that are passed into `with_rate_limit` block to be rate limited}
-  spec.homepage      = "https://github.com/aterletskiy/with_rate_limit"
+  spec.homepage      = "https://github.com/aterletskiy/with-rate-limit"
   spec.license       = "MIT"
   spec.required_ruby_version = Gem::Requirement.new(">= 2.3.0")
 
   # spec.metadata["allowed_push_host"] = "http://mygemserver.com"
 
   spec.metadata["homepage_uri"] = spec.homepage
-  spec.metadata["source_code_uri"] = "https://github.com/aterletskiy/with_rate_limit"
+  spec.metadata["source_code_uri"] = "https://github.com/aterletskiy/with-rate-limit"
   spec.metadata["changelog_uri"] = "https://github.com/aterletskiy/with_rate_limit/CHANGELOG.md"
 
   # Specify which files should be added to the gem when it is released.
