@@ -1,0 +1,25 @@
+PATH
+  remote: .
+  specs:
+    with_rate_limit (0.1.0)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    minitest (5.14.2)
+    mocha (1.11.2)
+    rake (12.3.3)
+    redis (4.0.2)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  minitest (~> 5.0)
+  mocha (~> 1.11.2)
+  rake (~> 12.0)
+  redis (~> 4.0.2)
+  with_rate_limit!
+
+BUNDLED WITH
+   2.1.4
