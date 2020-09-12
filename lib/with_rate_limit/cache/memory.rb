@@ -5,7 +5,7 @@ module WithRateLimit
     end
     
     def self.get(key)
-      cache[key]
+      cache[key] || {}
     end
     
     def self.cache

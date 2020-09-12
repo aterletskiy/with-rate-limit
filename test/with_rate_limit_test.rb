@@ -33,7 +33,7 @@ class WithRateLimitTest < Minitest::Test
   
   def test_default_strategy_is_sleep
     WithRateLimit::Strategy::Sleep.expects(:execute).with do |timeout|
-      assert_in_delta 1 , timeout, 0.01
+      assert_in_delta 1 , timeout, 0.05
       sleep timeout
     end
     
