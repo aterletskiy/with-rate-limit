@@ -11,7 +11,7 @@ module WithRateLimit
     end
     
     def self.get(key)
-      cache[key]&.transform_keys(&:to_sym)
+      cache[key] || {}
     end
     
     def self.configure

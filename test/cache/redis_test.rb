@@ -19,7 +19,7 @@ module WithRateLimit
     def test_get_returns_cache_values_from_redis
       @redis_client.stubs(:exists).with('with-rate-limit').returns true
       @redis_client.expects(:get).with('with-rate-limit').returns JSON('test' => {a: 'a'})
-      assert_equal({a: 'a'}, WithRateLimit::Cache::Redis.get('test'))
+      assert_equal({'a' => 'a'}, WithRateLimit::Cache::Redis.get('test'))
     end
   end
 end
