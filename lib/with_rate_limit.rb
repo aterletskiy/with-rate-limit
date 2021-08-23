@@ -30,7 +30,7 @@ module WithRateLimit
     elsif count_reset_delta > interval
       cache.set(cache_key, {last_interval_started_at: timestamp, operations_count: 1})
     else
-      cache.set(cache_key, {last_interval_started_at: timestamp, operations_count: operations_count + 1})
+      cache.set(cache_key, {last_interval_started_at: last_interval_started_at, operations_count: operations_count + 1})
     end
   
     begin

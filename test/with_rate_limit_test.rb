@@ -15,11 +15,9 @@ class WithRateLimitTest < Minitest::Test
     rate_limit = 2
     runs = 3
   
-    Redis.new.del 'with-rate-limit'
-  
     dummy = Dummy.new
     (rate_limit * runs).times.each do
-      dummy.with_rate_limit(rate_limit_interval, rate_limit, {cache_key: '5-operations-per-second'}) do
+      dummy.with_rate_limit(rate_limit_interval, rate_limit, {cache_key: "#{rate_limit}-operations-per-#{rate_limit_interval}-second"}) do
         operation_timestamps << Time.now.to_i
       end
     end
@@ -29,6 +27,67 @@ class WithRateLimitTest < Minitest::Test
                    [(Time.now.to_i - rate_limit_interval)] * rate_limit,
                    [(Time.now.to_i)] * rate_limit
                  ].flatten, operation_timestamps.sort)
+  end
+
+  def test_executes_strategy_when_limit_is_hit_within_interval
+    strategy = WithRateLimit::Strategy::Sleep
+    cache = WithRateLimit::Cache::Memory
+    rate_limit_interval = 1
+    rate_limit = 1
+    options = {strategy: strategy, cache: cache, cache_key: "#{rate_limit}-operations-per-#{rate_limit_interval}-second"}
+
+    dummy = Dummy.new
+
+    strategy.expects(:execute).with do |timeout|
+      sleep timeout
+    end
+
+    dummy.with_rate_limit(rate_limit_interval, rate_limit, options) {}
+    dummy.with_rate_limit(rate_limit_interval, rate_limit, options) {}
+  end
+
+  def test_increments_operation_count_without_updating_interval_start_timestamp_if_limit_not_exceeded
+    strategy = WithRateLimit::Strategy::Sleep
+    cache = WithRateLimit::Cache::Memory
+    rate_limit_interval = 1
+    rate_limit = 3
+    key = "#{rate_limit}-operations-per-#{rate_limit_interval}-second"
+    options = {strategy: strategy, cache: cache, cache_key: key}
+
+    dummy = Dummy.new
+    dummy.with_rate_limit(rate_limit_interval, rate_limit, options) {}
+    timestamp_1 = cache.get(key)[:last_interval_started_at]
+    assert_equal 1, cache.get(key)[:operations_count]
+
+    dummy.with_rate_limit(rate_limit_interval, rate_limit, options) {}
+    timestamp_2 = cache.get(key)[:last_interval_started_at]
+    assert_equal 2, cache.get(key)[:operations_count]
+
+    assert_equal timestamp_1, timestamp_2
+  end
+
+  def test_reset_cache_after_interval_has_passed
+    strategy = WithRateLimit::Strategy::Sleep
+    cache = WithRateLimit::Cache::Memory
+    rate_limit_interval = 1
+    rate_limit = 3
+    key = "#{rate_limit}-operations-per-#{rate_limit_interval}-second"
+    options = {strategy: strategy, cache: cache, cache_key: key}
+
+    dummy = Dummy.new
+    dummy.with_rate_limit(rate_limit_interval, rate_limit, options) {}
+    dummy.with_rate_limit(rate_limit_interval, rate_limit, options) {}
+
+    timestamp_1 = cache.get(key)[:last_interval_started_at]
+    assert_equal 2, cache.get(key)[:operations_count]
+
+    sleep rate_limit_interval
+
+    dummy.with_rate_limit(rate_limit_interval, rate_limit, options) {}
+    timestamp_2 = cache.get(key)[:last_interval_started_at]
+    assert_equal 1, cache.get(key)[:operations_count]
+
+    assert timestamp_2 > timestamp_1
   end
   
   def test_default_strategy_is_sleep
